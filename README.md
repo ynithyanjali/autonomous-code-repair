@@ -2,69 +2,60 @@
 
 [![Code Repair Tests](https://github.com/ynithyanjali/autonomous-code-repair/actions/workflows/tests.yml/badge.svg)](https://github.com/ynithyanjali/autonomous-code-repair/actions/workflows/tests.yml)
 
-A small, reproducible **test-guided program repair prototype** that locates a simple operator error in a synthetic Python project, proposes candidate changes, and validates them against automated tests.
+A small experiment in fixing bugs automatically, using tests to check the fix.
 
-> **Status:** Working starter demonstration, not a production autonomous AI engineer. The candidate generator is deterministic and does not yet use an LLM, LangGraph, Docker, or multi-agent orchestration.
+I wanted to see how far a simple, no-frills approach could go. The program finds an operator mistake in a small Python project (like - where + should be), tries swapping it, and keeps the change only if the tests pass.
 
-## What works now
+This is a starting point, not an “AI engineer.” There’s no LLM, LangGraph, Docker, or multi-agent setup yet. The candidate generator is plain, deterministic code.
 
-- Parses Python code and generates single-operator repair candidates.
-- Runs baseline and candidate unit tests using a temporary copy of the bundled demo.
-- Accepts a repair only when the sample test suite passes.
-- Exports a unified diff, proposed fixed file, and machine-readable JSON report.
-- Runs its own tests through GitHub Actions.
+What it does today
+Parses Python code and tries one-operator changes as repair candidates
+Runs the tests before and after each candidate, using a temporary copy of the demo project
+Accepts a fix only if the sample tests pass
+Saves a diff, the fixed file, and a JSON report
+Runs its own tests on GitHub Actions
+Try it
 
-## Quick start
+You need Python 3.10+. No other packages.
 
-Requires **Python 3.10+**. No third-party packages are needed.
-
-```bash
+bash
 python main.py
-```
 
-On Windows you can use `py main.py` instead of `python main.py`.
+On Windows, use py main.py.
 
-Expected output looks like:
+You should see something like:
 
-```text
+text
 === AUTONOMOUS CODE REPAIR: STARTER PROTOTYPE ===
 Baseline passed: False
 Candidates evaluated: 1
 Verified patch found: True
 Change: {'line': 6, 'from': 'Sub', 'to': 'Add'}
 Saved: artifacts/proposed_fix.patch and artifacts/report.json
-```
 
-To run the prototype's own tests:
+To run the project’s own tests:
 
-```bash
+bash
 python -m unittest discover -s tests -v
-```
 
-**Note:** The sample `calculator.py` intentionally contains a bug, so its baseline tests are supposed to fail. The repair workflow succeeds only if a candidate passes them.
+The sample calculator.py has a bug on purpose, so the baseline tests are supposed to fail. The repair only counts as a success if a candidate makes them pass.
 
-## Project layout
-
-```text
-repair_agent/             mutation generator + validation pipeline
-sample_project/           deliberately buggy calculator + tests
-tests/                    tests for the repair system
-.github/workflows/        automated CI checks
-docs/architecture.md      architecture and limitations
-main.py                   runnable demonstration
-```
-
-## Evaluation and limitations
-
-This demo checks **one known synthetic bug**, not thousands of real-world issues. A passing test suite is useful evidence, but not proof that a patch is universally correct. The patch engine uses `ast.unparse`, which may alter formatting/comments; inspect any generated patch before using it.
-
-The sample tests execute as local subprocesses, **not** in a sandbox; never run this against code you do not trust. Source code remains unmodified, and artifacts are written separately.
-
-## Roadmap (not implemented)
-
-1. Isolate test execution in Docker with resource limits.
-2. Generate patch candidates with a local LLM and compare against the deterministic baseline.
-3. Add agent-style planning, review, and retries with transparent logging.
-4. Benchmark on diverse, licensed test problems with success rate, runtime, and false-fix rate.
-
-See [docs/architecture.md](docs/architecture.md) for a more detailed overview.
+What’s where
+text
+repair_agent/             candidate generator + validation pipeline
+sample_project/           a deliberately buggy calculator + its tests
+tests/                    tests for the repair tool itself
+.github/workflows/        CI
+docs/architecture.md      design notes and limitations
+main.py                   run this
+Limitations
+I’ve only tested it on one known, synthetic bug, so it says nothing about how it would do on real code.
+Passing tests is good evidence, but it doesn’t prove a patch is correct.
+It uses ast.unparse, which can change formatting and comments, so look over any patch before using it.
+Tests run as plain local subprocesses, not in a sandbox. Don’t run this on code you don’t trust.
+Your original source is never touched. Output goes to a separate folder.
+What I’d like to do next
+Run tests inside Docker with resource limits
+Try a local LLM for generating candidates and compare it to this baseline
+Add planning, review, and retries with clear logs
+Benchmark on a range of licensed problems, tracking success rate, runtime, and how often it “fixes” things wrongly
