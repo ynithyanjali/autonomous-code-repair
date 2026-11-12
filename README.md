@@ -48,6 +48,7 @@ tests/                    tests for the repair tool itself
 .github/workflows/        CI
 docs/architecture.md      design notes and limitations
 main.py                   run this
+
 Limitations
 I’ve only tested it on one known, synthetic bug, so it says nothing about how it would do on real code.
 Passing tests is good evidence, but it doesn’t prove a patch is correct.
@@ -59,3 +60,7 @@ Run tests inside Docker with resource limits
 Try a local LLM for generating candidates and compare it to this baseline
 Add planning, review, and retries with clear logs
 Benchmark on a range of licensed problems, tracking success rate, runtime, and how often it “fixes” things wrongly
+
+More detail in docs/architecture.md.
+
+
